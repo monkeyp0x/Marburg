@@ -1,47 +1,139 @@
-// Add vector lines background animation
-const canvas = document.createElement('canvas');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-canvas.style.position = 'fixed';
-canvas.style.top = '0';
-canvas.style.left = '0';
-canvas.style.zIndex = '-1';
-document.body.appendChild(canvas);
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Chat Room</title>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        background-color: black;
+        position: relative;
+      }
 
-const context = canvas.getContext('2d');
-context.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-context.lineWidth = 1;
-const numLines = 50;
-const lines = [];
-for (let i = 0; i < numLines; i++) {
-  lines.push({
-    x: Math.random() * window.innerWidth,
-    y: Math.random() * window.innerHeight,
-    length: Math.random() * 100,
-    angle: Math.random() * Math.PI * 2,
-  });
-}
+      #stream {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 50px;
+        width: 100%;
+        height: 100%;
+      }
 
-function draw() {
-  context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  for (let i = 0; i < numLines; i++) {
-    const line = lines[i];
-    const endX = line.x + Math.cos(line.angle) * line.length;
-    const endY = line.y + Math.sin(line.angle) * line.length;
-    context.beginPath();
-    context.moveTo(line.x, line.y);
-    context.lineTo(endX, endY);
-    context.stroke();
-    line.x = endX;
-    line.y = endY;
-    if (line.x < 0 || line.x > window.innerWidth) {
-      line.angle = Math.PI - line.angle;
-    }
-    if (line.y < 0 || line.y > window.innerHeight) {
-      line.angle = -line.angle;
-    }
-  }
-  requestAnimationFrame(draw);
-}
-requestAnimationFrame(draw);
+      .line {
+        position: absolute;
+        bottom: 0;
+        width: 1px;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.3);
+      }
 
+      .line:nth-child(odd) {
+        animation: wave 2s infinite;
+      }
+
+      .line:nth-child(even) {
+        animation: wave 2s infinite alternate;
+      }
+
+      @keyframes wave {
+        0% {
+          transform: scaleY(1);
+        }
+        50% {
+          transform: scaleY(0.5);
+        }
+        100% {
+          transform: scaleY(1);
+        }
+      }
+
+      #chat-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        padding: 5px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+
+      #viewer-count {
+        color: white;
+        font-size: 14px;
+      }
+
+      #username-input {
+        flex: 1;
+        margin-right: 5px;
+        padding: 5px;
+        box-sizing: border-box;
+        font-size: 14px;
+      }
+
+      #message-input {
+        flex: 3;
+        margin-right: 5px;
+        padding: 5px;
+        box-sizing: border-box;
+        font-size: 14px;
+      }
+
+      #send-button {
+        flex: 0 0 60px;
+        padding: 5px;
+        box-sizing: border-box;
+        font-size: 14px;
+        background-color: white;
+        color: black;
+        border: none;
+        cursor: pointer;
+      }
+
+      #send-button:hover {
+        background-color: gray;
+      }
+
+      #chat-box {
+        position: absolute;
+        bottom: 60px;
+        left: 0;
+        width: 100%;
+        top: 0;
+        overflow-y: scroll;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 5px;
+        box-sizing: border-box;
+        color: white;
+      }
+
+      .message {
+        margin-bottom: 10px;
+      }
+
+      .message .username {
+        font-weight: bold;
+        margin-right: 5px;
+      }
+
+      .message .time {
+        font-size: 12px;
+        margin-left: 5px;
+        color: gray;
+      }
+
+      .message .content {
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="stream"></div>
+    <div id="chat-box"></div>
+    <div id="chat-container">
+      <div id="viewer-count">Current Viewers: 1</div>
+      <input type="text" id="username-input" placeholder="Enter username" />
+      <input type="text" id="message

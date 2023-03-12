@@ -15,6 +15,7 @@
       <button type="submit" class="btn btn-primary btn-lg btn-block">Send</button>
     </div>
   </form>
+  <div id="current-viewers" class="text-white">Current Viewers: 1</div>
 </div>
 
 <!-- JavaScript code to connect to the chat room -->
@@ -60,36 +61,32 @@
       messagesList.appendChild(listItem);
     }
   });
-</script>
 
-<!-- CSS code to style the chat room -->
-<style>
-  body {
-    background-color: black;
-    color: white;
-  }
+  // Update the "Current Viewers" count
+  const currentViewers = document.getElementById('current-viewers');
+  let viewerCount = 1;
+  setInterval(() => {
+    viewerCount = socket.readyState === 1 ? socket.bufferedAmount + 1 : 1;
+    currentViewers.textContent = `Current Viewers: ${viewerCount}`;
+  }, 1000);
 
-  #chat {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 10px;
-  }
+  // Add vector lines background animation
+  const canvas = document.createElement('canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.position = 'fixed';
+  canvas.style.top = '0';
+  canvas.style.left = '0';
+  canvas.style.zIndex = '-1';
+  document.body.appendChild(canvas);
 
-  .form-group {
-    margin-bottom: 10px;
-  }
+  const context = canvas.getContext('2d');
+  context.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+  context.lineWidth = 1;
+  const numLines = 50;
+  const lines = [];
+  for (let
 
-  .form-control {
-    height: 100px;
-    font-size: 24px;
-  }
-
-  .form-control-file {
-    height: auto;
-    font-size: 24px;
-  }
-
-  .btn {
     font-size: 24px;
   }
 </style>

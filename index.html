@@ -1,92 +1,47 @@
-<!-- HTML markup for the chat room -->
-<div id="chat">
-  <ul id="messages"></ul>
-  <form id="message-form">
-    <div class="form-group">
-      <input type="text" id="name-input" class="form-control" autocomplete="off" placeholder="Enter your screen name" />
-    </div>
-    <div class="form-group">
-      <input type="text" id="message-input" class="form-control" autocomplete="off" placeholder="Enter your message here" />
-    </div>
-    <div class="form-group">
-      <input type="file" id="file-input" class="form-control-file" />
-    </div>
-    <div class="form-group">
-      <button type="submit" class="btn btn-primary btn-lg btn-block">Send</button>
-    </div>
-  </form>
-  <div id="current-viewers" class="text-white">Current Viewers: 1</div>
-</div>
+// Add vector lines background animation
+const canvas = document.createElement('canvas');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+canvas.style.position = 'fixed';
+canvas.style.top = '0';
+canvas.style.left = '0';
+canvas.style.zIndex = '-1';
+document.body.appendChild(canvas);
 
-<!-- JavaScript code to connect to the chat room -->
-<script>
-  // Create a new WebSocket connection
-  const socket = new WebSocket('ws://localhost:3000');
-
-  // Handle message submission
-  const messageForm = document.getElementById('message-form');
-  const nameInput = document.getElementById('name-input');
-  const messageInput = document.getElementById('message-input');
-  const fileInput = document.getElementById('file-input');
-  messageForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const name = nameInput.value.trim();
-    const message = messageInput.value.trim();
-    if (name !== '' && message !== '') {
-      socket.send(`${name}: ${message}`);
-      nameInput.value = '';
-      messageInput.value = '';
-    }
-    const file = fileInput.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.addEventListener('load', (event) => {
-        socket.send(event.target.result);
-      });
-      reader.readAsDataURL(file);
-      fileInput.value = '';
-    }
+const context = canvas.getContext('2d');
+context.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+context.lineWidth = 1;
+const numLines = 50;
+const lines = [];
+for (let i = 0; i < numLines; i++) {
+  lines.push({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    length: Math.random() * 100,
+    angle: Math.random() * Math.PI * 2,
   });
+}
 
-  // Handle new chat message
-  const messagesList = document.getElementById('messages');
-  socket.addEventListener('message', (event) => {
-    if (event.data.startsWith('data:')) {
-      const img = document.createElement('img');
-      img.src = event.data;
-      messagesList.appendChild(img);
-    } else {
-      const listItem = document.createElement('li');
-      listItem.textContent = event.data;
-      messagesList.appendChild(listItem);
+function draw() {
+  context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  for (let i = 0; i < numLines; i++) {
+    const line = lines[i];
+    const endX = line.x + Math.cos(line.angle) * line.length;
+    const endY = line.y + Math.sin(line.angle) * line.length;
+    context.beginPath();
+    context.moveTo(line.x, line.y);
+    context.lineTo(endX, endY);
+    context.stroke();
+    line.x = endX;
+    line.y = endY;
+    if (line.x < 0 || line.x > window.innerWidth) {
+      line.angle = Math.PI - line.angle;
     }
-  });
-
-  // Update the "Current Viewers" count
-  const currentViewers = document.getElementById('current-viewers');
-  let viewerCount = 1;
-  setInterval(() => {
-    viewerCount = socket.readyState === 1 ? socket.bufferedAmount + 1 : 1;
-    currentViewers.textContent = `Current Viewers: ${viewerCount}`;
-  }, 1000);
-
-  // Add vector lines background animation
-  const canvas = document.createElement('canvas');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  canvas.style.position = 'fixed';
-  canvas.style.top = '0';
-  canvas.style.left = '0';
-  canvas.style.zIndex = '-1';
-  document.body.appendChild(canvas);
-
-  const context = canvas.getContext('2d');
-  context.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-  context.lineWidth = 1;
-  const numLines = 50;
-  const lines = [];
-  for (let
-
-    font-size: 24px;
+    if (line.y < 0 || line.y > window.innerHeight) {
+      line.angle = -line.angle;
+    }
   }
-</style>
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+

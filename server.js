@@ -13,3 +13,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Broadcast function sends a message to all connected clients
 wss.broadcast = function broadcast(data) {
   wss.clients.forEach(function each
+<div id="file-upload-container">
+  <label for="file-input">Select a file:</label>
+  <input type="file" id="file-input" name="file-input" />
+  <button id="upload-button">Upload</button>
+</div>

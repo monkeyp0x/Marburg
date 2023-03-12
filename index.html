@@ -1,0 +1,89 @@
+<!-- HTML markup for the chat room -->
+<div id="chat">
+  <ul id="messages"></ul>
+  <form id="message-form">
+    <div class="form-group">
+      <input type="text" id="message-input" class="form-control" autocomplete="off" placeholder="Enter your message here" />
+    </div>
+    <div class="form-group">
+      <input type="file" id="file-input" class="form-control-file" />
+    </div>
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Send</button>
+    </div>
+  </form>
+</div>
+
+<!-- JavaScript code to connect to the chat room -->
+<script>
+  // Create a new WebSocket connection
+  const socket = new WebSocket('ws://localhost:3000');
+
+  // Handle message submission
+  const messageForm = document.getElementById('message-form');
+  const messageInput = document.getElementById('message-input');
+  const fileInput = document.getElementById('file-input');
+  messageForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const message = messageInput.value.trim();
+    if (message !== '') {
+      socket.send(message);
+      messageInput.value = '';
+    }
+    const file = fileInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.addEventListener('load', (event) => {
+        socket.send(event.target.result);
+      });
+      reader.readAsDataURL(file);
+      fileInput.value = '';
+    }
+  });
+
+  // Handle new chat message
+  const messagesList = document.getElementById('messages');
+  socket.addEventListener('message', (event) => {
+    if (event.data.startsWith('data:')) {
+      const img = document.createElement('img');
+      img.src = event.data;
+      messagesList.appendChild(img);
+    } else {
+      const listItem = document.createElement('li');
+      listItem.textContent = event.data;
+      messagesList.appendChild(listItem);
+    }
+  });
+</script>
+
+<!-- CSS code to style the chat room -->
+<style>
+  body {
+    background-color: black;
+    color: white;
+  }
+
+  #chat {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 10px;
+  }
+
+  .form-group {
+    margin-bottom: 10px;
+  }
+
+  .form-control {
+    height: 100px;
+    font-size: 24px;
+  }
+
+  .form-control-file {
+    height: auto;
+    font-size: 24px;
+  }
+
+  .btn {
+    font-size: 24px;
+  }
+</style>
